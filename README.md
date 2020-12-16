@@ -12,3 +12,5 @@ lum.calculate_global_luminance(ouput_dir) # returns global luminance
 lum.local_partition(ouput_dir) # returns each frame of a video masked at the pupil position
 lum.alculate_local_luminance(ouput_dir) # returns local luminance based on pupil position
 ```
+
+Example is based on a  10-sec crop from https://www.youtube.com/watch?v=ScSpiRp1MUo
