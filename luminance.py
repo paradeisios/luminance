@@ -3,7 +3,6 @@ import numpy as np
 import cv2
 import pandas as pd
 from tqdm import tqdm
-import skimage.exposure
 
 
 
@@ -44,8 +43,8 @@ class Luminance():
 
         ''' Partition the video into frames and save jpg frames into work_dir
 
-            Inputs : workdir(str) --- Path to the output folder 
-            Ouput  : ---- '''
+            Inputs : -----
+            Ouput  : a X by Y by 3 by frames matrix with each frame '''
         partition = np.zeros((self.height,self.width,3,self.frame_count),dtype=np.uint8)
         vidcap = cv2.VideoCapture(self.video)
         success,image = vidcap.read()
@@ -65,12 +64,17 @@ class Luminance():
          ''' Calculate the mean grayscale luminance based on the method specified
 
          Inputs : image(np.array) --- Image to calculate mean luminance
-         Ouput  : uminance (float) --- mean luminance score for the image based on the specified method '''
+         Ouput  : luminance (float) --- mean luminance score for the image based on the specified method '''
         
          image = np.array(Image.fromarray(image).convert('RGB'))
          return(np.mean(self.method(image))) 
      
     def get_vid_seconds(self):
+        
+        ''' Calculate the length of the video in seconds 
+        
+        Inputs : ----
+        Output : seconds(int) '''
         
         vidcap = cv2.VideoCapture(self.video)
         fps = vidcap.get(cv2.CAP_PROP_FPS)
@@ -85,11 +89,20 @@ class Global_Luminance(Luminance):
         
     def calculate(self,save_txt = False,downsample=False):
         
+        ''' Method to estimate per frame luminance 
+        
+        Inputs : video(str) --- path to video
+                 method (See METHODS --- Mathematical model to use for luminance estimation)
+                 save_txt(bool) --- Save output in txt file
+                 downsample(bool) --- Average across video length
+                 
+        Output : luminance_array(pd.DataFrame) ---- Luminance array '''
+        
         pbar = tqdm(total=self.frame_count)
         global_luminance_array = np.zeros(self.frame_count)
         
-        for ii in range(lum.frames.shape[3]):
-             global_luminance_array[ii] = self.frame_luminance(lum.frames[:,:,:,ii])
+        for ii in range(self.frames.shape[3]):
+             global_luminance_array[ii] = self.frame_luminance(self.frames[:,:,:,ii])
              pbar.update(1)
         pbar.close()
         
@@ -110,7 +123,7 @@ class Global_Luminance(Luminance):
 
 class Local_Luminance(Luminance):
     
-    def __init__(self,video,pupil_data,radius,method="linear"):
+    def __init__(self,video,pupil_data,radius=30,method="linear"):
         
         super().__init__(video,method="linear")
         self.pupil_x = pupil_data[:,0]
@@ -120,8 +133,14 @@ class Local_Luminance(Luminance):
     
     def local_partition(self):
         
+        ''' Method to estimate local parts of pupil attendance
+        
+            Inputs : ----
+            
+            Outputs: local_frames(np.array) --- a X by Y by 3 by frames matrix with each frame'''
+        
         pbar = tqdm(total=self.frame_count)
-        local_frames = np.zeros((self.height,self.width,4,self.frame_count),dtype=np.uint8)
+        local_frames = np.zeros((self.height,self.width,3,self.frame_count),dtype=np.uint8)
         
         for ii in range(self.frames.shape[3]):
             image = self.frames[:,:,:,ii]
@@ -129,31 +148,8 @@ class Local_Luminance(Luminance):
             mask = np.zeros((self.height,self.width), np.uint8)
             mask = cv2.circle(mask,(self.pupil_x[ii],self.pupil_y[ii]),self.radius,1,thickness=-1)
             
-            masked_data = cv2.bitwise_and(image, image, mask=mask)
-            gray = cv2.cvtColor(masked_data, cv2.COLOR_BGR2GRAY)
+            result = cv2.bitwise_and(image, image, mask=mask)
             
-            ###### thresholding
-
-            _,thresh = cv2.threshold(gray, 11, 255, cv2.THRESH_BINARY)
-            contours = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            contours = contours[0] if len(contours) == 2 else contours[1]
-            big_contour = max(contours, key=cv2.contourArea)
-            x,y,w,h = cv2.boundingRect(contours[0])
-            
-            
-            # countour
-            contour = np.zeros_like(gray)
-            cv2.drawContours(contour, [big_contour], 0, 255, -1)
-            
-            # blur dilate image
-            blur = cv2.GaussianBlur(contour, (5,5), sigmaX=0, sigmaY=0, borderType = cv2.BORDER_DEFAULT)
-            
-            # stretch so that 255 -> 255 and 127.5 -> 0
-            mask = skimage.exposure.rescale_intensity(blur, in_range=(127.5,255), out_range=(0,255))
-            
-            # put mask into alpha channel of input
-            result = cv2.cvtColor(image, cv2.COLOR_BGR2BGRA)
-            result[:,:,3] = mask
             local_frames[:,:,:,ii]=result
             pbar.update(1)
         pbar.close()
@@ -163,11 +159,19 @@ class Local_Luminance(Luminance):
     
     def calculate(self,save_txt=False,downsample=False):
         
+        ''' Method to estimate per frame luminance 
+        
+        Inputs : video(str) --- path to video
+                 method (See METHODS --- Mathematical model to use for luminance estimation)
+                 save_txt(bool) --- Save output in txt file
+                 downsample(bool) --- Average across video length
+                 
+        Output : luminance_array(pd.DataFrame) ---- Luminance array '''
         pbar = tqdm(total=self.frame_count)
         local_luminance_array = np.zeros(self.frame_count)
         
-        for ii in range(lum.frames.shape[3]):
-             local_luminance_array[ii] = self.frame_luminance(lum.local_frames[:,:,:,ii])
+        for ii in range(self.frames.shape[3]):
+             local_luminance_array[ii] = self.frame_luminance(self.local_frames[:,:,:,ii])
              pbar.update(1)
         pbar.close()
         
@@ -185,13 +189,4 @@ class Local_Luminance(Luminance):
                             columns=["global"], 
                             dtype=np.float64) 
 
-        
-
-
-
-video = "/home/paradeisios/Documents/GITLAB/luminance/example/test.mp4"
-pupil_data = np.random.randint(low=100,high=200,size=(151,2))
-
-lum = Local_Luminance(video,pupil_data,radius = 20,method="average")
-b=lum.calculate()
 
