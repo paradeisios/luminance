@@ -66,8 +66,9 @@ class Luminance():
          Inputs : image(np.array) --- Image to calculate mean luminance
          Ouput  : luminance (float) --- mean luminance score for the image based on the specified method '''
         
-         image = np.array(Image.fromarray(image).convert('RGB'))
-         return(np.mean(self.method(image))) 
+         image = np.array(Image.fromarray(image.astype(np.uint8)).convert('RGB')).astype("float64")
+         image[image==0]=np.nan
+         return(np.nanmean(self.method(image))) 
      
     def get_vid_seconds(self):
         
@@ -154,6 +155,7 @@ class Local_Luminance(Luminance):
             pbar.update(1)
         pbar.close()
         
+        
         return local_frames
     
     
@@ -171,6 +173,7 @@ class Local_Luminance(Luminance):
         local_luminance_array = np.zeros(self.frame_count)
         
         for ii in range(self.frames.shape[3]):
+             
              local_luminance_array[ii] = self.frame_luminance(self.local_frames[:,:,:,ii])
              pbar.update(1)
         pbar.close()
@@ -188,5 +191,3 @@ class Local_Luminance(Luminance):
                             index=None, 
                             columns=["global"], 
                             dtype=np.float64) 
-
-
