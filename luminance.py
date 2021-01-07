@@ -1,3 +1,7 @@
+# Boulakis Paradeisios
+# 7 January 2021
+
+
 from PIL import Image
 import numpy as np
 import cv2
