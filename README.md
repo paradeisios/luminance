@@ -1,4 +1,4 @@
-# luminance
+# Luminance
 Simple script to extract local and global luminance from a video, given pupil location data.
 
 Returns a .csv file.
@@ -10,12 +10,12 @@ Extract global and local luminance
 optional arguments:
   -h, --help           show this help message and exit
 
-Required Arguments:
-  --video_path     Path with video.
-  --pupil_path     Path to pupil data.
-  --out_path       Path to store the results.
-  --method         Mathematical model to calculate luminance.
-  --downsample     Return the downsampled luminance.
+#### Required Arguments:\
+  --video_path     Path with video.\
+  --pupil_path     Path to pupil data.\
+  --out_path       Path to store the results.\
+  --method         Mathematical model to calculate luminance.\
+  --downsample     Return the downsampled luminance.\
 
 
 Methods to estimate luminance supported are linear,perceived and average.
