@@ -10,7 +10,7 @@ Extract global and local luminance
 optional arguments:
   -h, --help           show this help message and exit
 
-#### Required Arguments:\
+#### Required Arguments:
   --video_path     Path with video.\
   --pupil_path     Path to pupil data.\
   --out_path       Path to store the results.\
