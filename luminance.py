@@ -72,31 +72,32 @@ frame_count = int(cv2.VideoCapture(video).get(cv2.CAP_PROP_FRAME_COUNT))
 
 luminance_array = np.zeros((frame_count,2))
 
-pbar = tqdm(total=frame_count)
-pbar.set_description("Calculating global luminace")
+pbar_global = tqdm(total=frame_count,position=1)
+pbar_local  = tqdm(total=frame_count,position=0)
+pbar_global.set_description("Calculating global luminance")
+pbar_local.set_description("Calculating local luminance")
+
+
 vidcap = cv2.VideoCapture(video)
+
 for ii in range(frame_count):
     _,image = vidcap.read()
     luminance_array[ii,0] = frame_luminance(image,METHODS["linear"])
-    pbar.update(1)
-pbar.close()
-vidcap.release() 
-
-
-pbar = tqdm(total=frame_count)
-pbar.set_description("Calculating local luminace")
-vidcap = cv2.VideoCapture(video)
-for ii in range(frame_count):
-    _,image = vidcap.read()
+    pbar_global.update(1)
     mask = np.zeros((height,width), np.uint8)
     mask = cv2.circle(mask,(pupil_x[ii],pupil_y[ii]),radius,1,thickness=-1)
     masked_image = cv2.bitwise_and(image, image, mask=mask)
     image = np.array(Image.fromarray(image.astype(np.uint8)).convert('RGB')).astype("float64")
     image[image==0]=np.nan
     luminance_array[ii,1] = frame_luminance(masked_image,METHODS["linear"])
-    pbar.update(1)
-pbar.close()
+    pbar_local.update(1)
+
+
+pbar_global.close()
+pbar_local.close()
+
 vidcap.release() 
+
 
 if downsample:
     
@@ -108,7 +109,7 @@ if downsample:
     
         
 df = pd.DataFrame(luminance_array,columns=["global","local"])
-save_name = output_path + "luminance.csv"
+save_name = output_path + "luminance_results.csv"
 df.to_csv(save_name)
 
 
