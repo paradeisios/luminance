@@ -24,6 +24,4 @@ If downsample is specified to True, the script will group frames across seconds 
 Example : 
 <<<<<<< HEAD
 ```python luminance.py --video_path=/path/to/video --pupil_path=/path/to/video --out_path=/path/to/out_dir --method=linear```
-=======
-```python luminance.py --video_path=/path/to/video --pupil_path=/path/to/pupil --out_path=/path/to/out_dir --method=linear --downsample=True```
->>>>>>> 685b944d413573eec0565396ec68ecff4ae41819
+
