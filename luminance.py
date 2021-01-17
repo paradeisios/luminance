@@ -18,23 +18,23 @@ from utils.constants import METHODS
 
 
 parser = ArgumentParser(description='Extract global and local luminance')
-required = parser.add_argument_group('Required Arguments')
+arguements = parser.add_argument_group('Arguments')
 
-required.add_argument('--video_path', metavar='path', nargs=1, type=str,
+arguements.add_argument('--video_path', metavar='path', nargs=1, type=str,
                       help='Path with video.',
                       required=True)
-required.add_argument('--pupil_path', metavar='path', nargs=1, type=str,
+arguements.add_argument('--pupil_path', metavar='path', nargs=1, type=str,
                       help='Path to pupil data.',
                       required=True)
-required.add_argument('--out_path', metavar='path', nargs=1, type=str,
+arguements.add_argument('--out_path', metavar='path', nargs=1, type=str,
                       help='Path to store the results.',
                       required=True)
-required.add_argument('--method', metavar='method', nargs=1, type=str,
+arguements.add_argument('--method', metavar='method', nargs=1, type=str,
                       help='Mathematical model to calculate luminance.',
                       required=True)
-required.add_argument('--downsample', metavar='bool', nargs=1, type=bool,
-                      help='Return the downsampled luminance.',
-                      required=True)
+arguements.add_argument('--downsample', metavar='bool', nargs=1, type=bool,
+                      default = True,help='Return the downsampled luminance.',
+                      required=False)
 
 args = parser.parse_args()
 video           = args.video_path
