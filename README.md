@@ -22,6 +22,5 @@ Methods to estimate luminance supported are linear,perceived and average.
 If downsample is specified to True, the script will group frames across seconds and average them.
 
 Example : 
-<<<<<<< HEAD
 ```python luminance.py --video_path=/path/to/video --pupil_path=/path/to/video --out_path=/path/to/out_dir```
 
