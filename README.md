@@ -14,7 +14,7 @@ optional arguments:
   --video_path     Path with video.\
   --pupil_path     Path to pupil data.\
   --out_path       Path to store the results.\
-  --method         Mathematical model to calculate luminance.\
+  --method         Mathematical model to calculate luminance (linear,perceived,average).\
   --downsample     Return the downsampled luminance.\
 
 
@@ -23,5 +23,5 @@ If downsample is specified to True, the script will group frames across seconds 
 
 Example : 
 <<<<<<< HEAD
-```python luminance.py --video_path=/path/to/video --pupil_path=/path/to/video --out_path=/path/to/out_dir --method=linear```
+```python luminance.py --video_path=/path/to/video --pupil_path=/path/to/video --out_path=/path/to/out_dir```
 
