@@ -30,12 +30,12 @@ arguements.add_argument('--out_path', metavar='path', nargs=1, type=str,
                       help='Path to store the results.',
                       required=True)
 arguements.add_argument('--method', metavar='method', nargs=1, type=str,
-                      help='Mathematical model to calculate luminance.',
-                      required=True)
-arguements.add_argument('--downsample', metavar='bool', nargs=1, type=bool,
-                      default = True,help='Return the downsampled luminance.',
-                      required=False)
-
+                      default = "linear", required=False,
+                      help='Mathematical model to calculate luminance.')
+arguements.add_argument('--downsample', metavar='bool', nargs=1, 
+			 type=bool, default = True, required=False,
+                        help='Return the downsampled luminance.')
+ 
 args = parser.parse_args()
 video           = args.video_path
 pupil_data_path = args.pupil_path
